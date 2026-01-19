@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Student Marks Form</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 600px;
+        margin: 50px auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .subject-item {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 8px;
+        background: #e9ecef;
+        transition: all 0.3s ease;
+      }
+      .hidden-subject {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h3 class="text-center mb-4">
+        Internal Examination Marks Entry Portal
+      </h3>
+      <form name="submit-to-google-sheet">
+        <div class="mb-3">
+          <label
+            for="studentName"
+            class="form-label"
+            >Student Name</label
+          >
+          <input
+            type="text"
+            class="form-control"
+            id="studentName"
+            name="studentName"
+            placeholder="Enter student name"
+            required />
+        </div>
+
+        <div class="mb-3">
+          <label
+            for="studentClass"
+            class="form-label"
+            >Class</label
+          >
+          <select
+            class="form-select"
+            id="studentClass"
+            name="studentClass"
+            required>
+            <option value="">Select Class</option>
+            <option value="Nursery">
+              Nursery
+            </option>
+            <option value="1">Class 1</option>
+            <option value="2">Class 2</option>
+            <option value="3">Class 3</option>
+            <option value="4">Class 4</option>
+            <option value="5">Class 5</option>
+            <option value="6">Class 6</option>
+            <option value="7">Class 7</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label
+            for="rollNumber"
+            class="form-label"
+            >Roll Number</label
+          >
+          <input
+            type="number"
+            class="form-control"
+            id="rollNumber"
+            name="rollNumber"
+            placeholder="Enter roll number"
+            required />
+        </div>
+
+        <div class="mb-3">
+          <label for="examType" class="form-label"
+            >Exam Type</label
+          >
+          <select
+            class="form-control"
+            id="examType"
+            name="examType"
+            required>
+            <option value="">
+              Select Exam Type
+            </option>
+            <option value="Unit-1">Unit-1</option>
+            <option value="Unit-2">Unit-2</option>
+            <option value="Half yearly">
+              Half yearly
+            </option>
+            <option value="Unit-3">Unit-3</option>
+            <option value="Unit-4">Unit-4</option>
+            <option value="Annual">Annual</option>
+          </select>
+        </div>
+
+        <div
+          class="subject-item"
+          data-subject="1">
+          <h5>Subject 1: English</h5>
+          <label
+            for="subject1Marks"
+            class="form-label"
+            >Marks</label
+          >
+          <input
+            type="number"
+            class="form-control subject-marks"
+            id="subject1Marks"
+            name="subject1Marks"
+            min="0"
+            max="100"
+            placeholder="Enter marks" />
+        </div>
+
+        <div
+          class="subject-item"
+          data-subject="2">
+          <h5>Subject 2: Bengali</h5>
+          <label
+            for="subject2Marks"
+            class="form-label"
+            >Marks</label
+          >
+          <input
+            type="number"
+            class="form-control subject-marks"
+            id="subject2Marks"
+            name="subject2Marks"
+            min="0"
+            max="100"
+            placeholder="Enter marks" />
+        </div>
+
+        <div
+          class="subject-item"
+          data-subject="3">
+          <h5>Subject 3: G Maths</h5>
+          <label
+            for="subject3Marks"
+            class="form-label"
+            >Marks</label
+          >
+          <input
+            type="number"
+            class="form-control subject-marks"
+            id="subject3Marks"
+            name="subject3Marks"
+            min="0"
+            max="100"
+            placeholder="Enter marks" />
+        </div>
+
+        <div
+          class="subject-item"
+          data-subject="4">
+          <h5>
+            Subject 4: G Science / GK & Drawing
+          </h5>
+          <label
+            for="subject4Marks"
+            class="form-label"
+            >Marks</label
+          >
+          <input
+            type="number"
+            class="form-control subject-marks"
+            id="subject4Marks"
+            name="subject4Marks"
+            min="0"
+            max="100"
+            placeholder="Enter marks" />
+        </div>
+
+        <div
+          class="subject-item hidden-subject"
+          data-subject="5">
+          <h5>Subject 5: EVS / S Science</h5>
+          <label
+            for="subject5Marks"
+            class="form-label"
+            >Marks</label
+          >
+          <input
+            type="number"
+            class="form-control subject-marks"
+            id="subject5Marks"
+            name="subject5Marks"
+            min="0"
+            max="100"
+            placeholder="Enter marks" />
+        </div>
+
+        <div
+          class="subject-item hidden-subject"
+          data-subject="6">
+          <h5>
+            Subject 6: Elective (Hindi / IT /
+            Advance Math / Persian)
+          </h5>
+          <label
+            for="subject6Marks"
+            class="form-label"
+            >Marks</label
+          >
+          <input
+            type="number"
+            class="form-control subject-marks"
+            id="subject6Marks"
+            name="subject6Marks"
+            min="0"
+            max="100"
+            placeholder="Enter marks" />
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          id="saveBtn">
+          Submit
+        </button>
+      </form>
+    </div>
+    <footer class="text-center mt-4 p-3 bg-light">
+      <p>&copy; Talent Senior Secondary School</p>
+      <p>
+        Designed and Developed by Sabed Barbhuiya
+      </p>
+    </footer>
+
+    <script>
+      const scriptURL =
+        'https://script.google.com/macros/s/AKfycbyryYT4ItRQtVbvr0amf4b3emvEZ2WO0rARxZeIs8tS1t1zR_bvTiBWrmY7j6lUeMkvOg/exec'
+      const form =
+        document.forms['submit-to-google-sheet']
+      const classSelect = document.getElementById(
+        'studentClass'
+      )
+      const examTypeSelect =
+        document.getElementById('examType')
+
+      // Function to handle subject visibility
+      function updateSubjects() {
+        const selectedClass = classSelect.value
+        let subjectsToShow = 4
+
+        if (
+          selectedClass === 'Nursery' ||
+          selectedClass === '1'
+        ) {
+          subjectsToShow = 4
+        } else if (
+          ['2', '3', '4'].includes(selectedClass)
+        ) {
+          subjectsToShow = 5
+        } else if (
+          [
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            '10'
+          ].includes(selectedClass)
+        ) {
+          subjectsToShow = 6
+        }
+
+        document
+          .querySelectorAll('.subject-item')
+          .forEach(subject => {
+            const subjectNumber = parseInt(
+              subject.dataset.subject
+            )
+            subject.classList.toggle(
+              'hidden-subject',
+              subjectNumber > subjectsToShow
+            )
+          })
+      }
+
+      // Event listener for class change
+      classSelect.addEventListener(
+        'change',
+        updateSubjects
+      )
+
+      // Initial update on page load
+      updateSubjects()
+
+      form.addEventListener('submit', async e => {
+        e.preventDefault()
+
+        const submitBtn =
+          document.getElementById('saveBtn')
+        submitBtn.disabled = true
+        submitBtn.innerHTML =
+          '<span class="spinner-border spinner-border-sm" role="status"></span> Submitting...'
+
+        try {
+          const formData = new URLSearchParams(
+            new FormData(form)
+          ).toString()
+          const response = await fetch(
+            scriptURL,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type':
+                  'application/x-www-form-urlencoded'
+              },
+              body: formData
+            }
+          )
+
+          if (!response.ok)
+            throw new Error('Network error')
+          const result = await response.json()
+
+          if (result.status === 'error')
+            throw new Error(result.message)
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Marks submitted successfully.',
+            confirmButtonColor: '#007bff'
+          })
+
+          // Reset form while preserving class and exam type selections
+          const savedClass = classSelect.value
+          const savedExamType =
+            examTypeSelect.value
+          form.reset()
+          classSelect.value = savedClass
+          examTypeSelect.value = savedExamType
+          updateSubjects() // Update subjects visibility after reset
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Submission Failed',
+            text: error.message,
+            confirmButtonColor: '#dc3545'
+          })
+        } finally {
+          submitBtn.disabled = false
+          submitBtn.innerHTML = 'Submit'
+        }
+      })
+    </script>
+
+    <script>
+      // Disable right-click
+      document.addEventListener(
+        'contextmenu',
+        event => event.preventDefault()
+      )
+
+      // Disable Ctrl+U, Ctrl+Shift+I, and F12
+      document.addEventListener(
+        'keydown',
+        event => {
+          if (
+            (event.ctrlKey &&
+              (event.key === 'u' ||
+                event.key === 'U')) ||
+            (event.ctrlKey &&
+              event.shiftKey &&
+              (event.key === 'I' ||
+                event.key === 'i')) ||
+            event.key === 'F12'
+          ) {
+            event.preventDefault()
+          }
+        }
+      )
+
+      // Disable text selection
+      document.addEventListener(
+        'selectstart',
+        event => event.preventDefault()
+      )
+
+      // Disable drag
+      document.addEventListener(
+        'dragstart',
+        event => event.preventDefault()
+      )
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
