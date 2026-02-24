@@ -362,16 +362,29 @@
     // Initial update on page load
     updateSubjects()
 
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+      didOpen: toast => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+      }
+    })
+
     form.addEventListener('submit', async e => {
       e.preventDefault()
 
-      const submitBtn =
-        document.getElementById('saveBtn')
-      submitBtn.disabled = true
-      submitBtn.innerHTML =
-        '<span class="spinner-border spinner-border-sm" role="status"></span> Submitting...'
+      const submitBtn = document.getElementById('saveBtn')
+      const originalBtnText = submitBtn.innerHTML
 
-      // ── Capture current entry BEFORE reset ───────────────────────────
+      // 1. Brief feedback and data capture
+      submitBtn.disabled = true
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'
+
+      const formData = new FormData(form)
       const currentEntry = {
         name: document.getElementById('studentName').value.trim(),
         class: classSelect.value,
@@ -379,70 +392,59 @@
         roll: document.getElementById('rollNumber').value.trim(),
         exam: examTypeSelect.value
       }
-      // ─────────────────────────────────────────────────────────────────
 
+      // 2. Immediate UI Update
+      saveLastEntry(currentEntry)
+      showLastEntryPanel(currentEntry)
+
+      const leName = document.getElementById('le-name')
+      leName.innerHTML = `${currentEntry.name} <span class="spinner-border spinner-border-sm text-primary" style="width: 10px; height: 10px;"></span>`
+
+      // 3. Reset form and Re-enable button immediately
+      const savedClass = classSelect.value
+      const savedExamType = examTypeSelect.value
+      const nextRoll = parseInt(currentEntry.roll) + 1
+
+      form.reset()
+      classSelect.value = savedClass
+      examTypeSelect.value = savedExamType
+      if (!isNaN(nextRoll)) {
+        document.getElementById('rollNumber').value = nextRoll
+      }
+      updateSubjects()
+
+      // Ready for next entry!
+      submitBtn.disabled = false
+      submitBtn.innerHTML = originalBtnText
+      document.getElementById('studentName').focus()
+
+      // 4. Background Submission
       try {
-        const formData = new URLSearchParams(
-          new FormData(form)
-        ).toString()
-        const response = await fetch(
-          scriptURL,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type':
-                'application/x-www-form-urlencoded'
-            },
-            body: formData
-          }
-        )
-
-        if (!response.ok)
-          throw new Error('Network error')
-        const result = await response.json()
-
-        if (result.status === 'error')
-          throw new Error(result.message)
-
-        // ── Save to localStorage & update panel on success ────────────
-        saveLastEntry(currentEntry)
-        showLastEntryPanel(currentEntry)
-        // ─────────────────────────────────────────────────────────────
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: 'Marks submitted successfully.',
-          confirmButtonColor: '#007bff'
+        const payload = new URLSearchParams(formData).toString()
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: payload
         })
 
-        // Reset form while preserving class and exam type selections
-        const savedClass = classSelect.value
-        const savedExamType =
-          examTypeSelect.value
-        form.reset()
-        classSelect.value = savedClass
-        examTypeSelect.value = savedExamType
+        if (!response.ok) throw new Error('Network error')
+        const result = await response.json()
+        if (result.status === 'error') throw new Error(result.message)
 
-        // Auto-increment roll number for the next entry
-        if (currentEntry && currentEntry.roll) {
-          const nextRoll = parseInt(currentEntry.roll) + 1
-          if (!isNaN(nextRoll)) {
-            document.getElementById('rollNumber').value = nextRoll
-          }
-        }
+        leName.innerHTML = `${currentEntry.name} <span class="text-success">✔</span>`
+        Toast.fire({
+          icon: 'success',
+          title: 'Submitted & Synced'
+        })
 
-        updateSubjects() // Update subjects visibility after reset
       } catch (error) {
+        leName.innerHTML = `${currentEntry.name} <span class="text-danger">✘ Failed</span>`
         Swal.fire({
           icon: 'error',
-          title: 'Submission Failed',
-          text: error.message,
+          title: 'Sync Failed',
+          text: `Last entry (${currentEntry.name}) failed to upload: ${error.message}. Please check your connection and re-enter if necessary.`,
           confirmButtonColor: '#dc3545'
         })
-      } finally {
-        submitBtn.disabled = false
-        submitBtn.innerHTML = 'Submit'
       }
     })
   </script>
