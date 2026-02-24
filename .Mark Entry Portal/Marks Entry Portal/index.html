@@ -182,7 +182,7 @@
 
       <div class="subject-item" data-subject="4">
         <h5>
-          Subject 4: G Science / GK & Drawing <b>*</b>(for Class 5 EVS)
+          Subject 4: G Science / GK & Drawing
         </h5>
         <label for="subject4Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject4Marks" name="subject4Marks" min="0"
@@ -190,7 +190,7 @@
       </div>
 
       <div class="subject-item hidden-subject" data-subject="5">
-        <h5>Subject 5: EVS / S Science <b>*</b>(for Class 5 Hindi)</h5>
+        <h5>Subject 5: EVS / S Science</h5>
         <label for="subject5Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject5Marks" name="subject5Marks" min="0"
           max="100" placeholder="Enter marks" />
@@ -326,6 +326,18 @@
         ].includes(selectedClass)
       ) {
         subjectsToShow = 6
+      }
+
+      // Update specific subject labels for Class 5
+      const subject4Heading = document.querySelector('.subject-item[data-subject="4"] h5');
+      const subject5Heading = document.querySelector('.subject-item[data-subject="5"] h5');
+
+      if (selectedClass === '5') {
+        if (subject4Heading) subject4Heading.innerHTML = 'Subject 4: EVS';
+        if (subject5Heading) subject5Heading.innerHTML = 'Subject 5: Hindi';
+      } else {
+        if (subject4Heading) subject4Heading.innerHTML = 'Subject 4: G Science / GK & Drawing';
+        if (subject5Heading) subject5Heading.innerHTML = 'Subject 5: EVS / S Science';
       }
 
       document
