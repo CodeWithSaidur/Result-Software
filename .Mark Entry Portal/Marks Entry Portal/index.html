@@ -182,7 +182,7 @@
 
       <div class="subject-item" data-subject="4">
         <h5>
-          Subject 4: G Science / GK & Drawing
+          Subject 4: G Science / GK & Drawing <b>*</b>(for Class 5 EVS)
         </h5>
         <label for="subject4Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject4Marks" name="subject4Marks" min="0"
@@ -190,7 +190,7 @@
       </div>
 
       <div class="subject-item hidden-subject" data-subject="5">
-        <h5>Subject 5: EVS / S Science</h5>
+        <h5>Subject 5: EVS / S Science <b>*</b>(for Class 5 Hindi)</h5>
         <label for="subject5Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject5Marks" name="subject5Marks" min="0"
           max="100" placeholder="Enter marks" />
@@ -277,19 +277,27 @@
       if (!entry) return
       const panel = document.getElementById('lastEntryPanel')
       document.getElementById('le-name').textContent = entry.name || '—'
-      document.getElementById('le-class').textContent = entry.class || '—'
+      document.getElementById('le-class').textContent = entry.className || entry.class || '—'
       document.getElementById('le-roll').textContent = entry.roll || '—'
       document.getElementById('le-exam').textContent = entry.exam || '—'
       panel.style.display = 'block'
     }
 
-    // Show last entry on page load (if any) and initialize next roll number
+    // Show last entry on page load (if any) and initialize fields
     const lastEntryOnLoad = loadLastEntry()
     showLastEntryPanel(lastEntryOnLoad)
-    if (lastEntryOnLoad && lastEntryOnLoad.roll) {
-      const nextRoll = parseInt(lastEntryOnLoad.roll) + 1
-      if (!isNaN(nextRoll)) {
-        document.getElementById('rollNumber').value = nextRoll
+    if (lastEntryOnLoad) {
+      if (lastEntryOnLoad.class) {
+        classSelect.value = lastEntryOnLoad.class
+      }
+      if (lastEntryOnLoad.exam) {
+        examTypeSelect.value = lastEntryOnLoad.exam
+      }
+      if (lastEntryOnLoad.roll) {
+        const nextRoll = parseInt(lastEntryOnLoad.roll) + 1
+        if (!isNaN(nextRoll)) {
+          document.getElementById('rollNumber').value = nextRoll
+        }
       }
     }
     // ─────────────────────────────────────────────────────────────────────
@@ -354,7 +362,8 @@
       // ── Capture current entry BEFORE reset ───────────────────────────
       const currentEntry = {
         name: document.getElementById('studentName').value.trim(),
-        class: classSelect.options[classSelect.selectedIndex].text,
+        class: classSelect.value,
+        className: classSelect.options[classSelect.selectedIndex].text,
         roll: document.getElementById('rollNumber').value.trim(),
         exam: examTypeSelect.value
       }
