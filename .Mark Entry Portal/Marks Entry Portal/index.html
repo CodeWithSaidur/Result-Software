@@ -33,71 +33,66 @@
       display: none;
     }
 
-    /* Last Entry Panel */
+
+
+    /* Swipe-to-Delete Styles */
     #lastEntryPanel {
-      display: none;
-      margin-top: 20px;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);
-      animation: fadeInUp 0.4s ease;
+      position: relative;
+      touch-action: pan-y;
+      user-select: none;
     }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(12px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    #lastEntryPanel .panel-header {
-      background: linear-gradient(135deg, #007bff, #0056b3);
-      color: #fff;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      letter-spacing: 0.3px;
-    }
-
-    #lastEntryPanel .panel-header svg {
-      flex-shrink: 0;
-    }
-
-    #lastEntryPanel .panel-body {
-      background: #f0f6ff;
-      padding: 14px 16px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px 20px;
-    }
-
-    .last-entry-field {
+    .swipe-background {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100px;
+      background: #dc3545;
+      color: white;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 10px 10px 0;
+      cursor: pointer;
+      z-index: 1;
     }
 
-    .last-entry-field .lef-label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #6c757d;
-      font-weight: 600;
+    .swipe-foreground {
+      position: relative;
+      z-index: 2;
+      background: white;
+      transition: transform 0.2s ease-out;
+      cursor: grab;
     }
 
-    .last-entry-field .lef-value {
-      font-size: 0.98rem;
-      font-weight: 700;
-      color: #0d214f;
-      word-break: break-word;
+    .swipe-foreground:active {
+      cursor: grabbing;
+    }
+
+
+
+    /* Centered Popup Style */
+    .swal2-popup {
+      border-radius: 20px !important;
+      padding: 2rem !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    .swal2-title {
+      color: #0d214f !important;
+      font-weight: 700 !important;
+    }
+
+    .swal2-confirm {
+      background: linear-gradient(135deg, #007bff, #0056b3) !important;
+      border-radius: 10px !important;
+      padding: 12px 30px !important;
+      font-weight: 600 !important;
     }
   </style>
 </head>
@@ -212,32 +207,49 @@
     </form>
 
     <!-- Last Entry Panel -->
-    <div id="lastEntryPanel">
-      <div class="panel-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
-          <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+    <div id="lastEntryPanel"
+      style="display: none; margin-top: 20px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);">
+      <!-- Swipe Background (The Delete Button Behind) -->
+      <div class="swipe-background" id="swipeDeleteBtn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+          <path
+            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+          <path fill-rule="evenodd"
+            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
         </svg>
-        Last Entry
+        <small style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px;">Delete</small>
       </div>
-      <div class="panel-body">
-        <div class="last-entry-field">
-          <span class="lef-label">Student Name</span>
-          <span class="lef-value" id="le-name">—</span>
+
+      <!-- Swipe Foreground (The Content) -->
+      <div class="swipe-foreground" id="lastEntryContent">
+        <div class="panel-header">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+          </svg>
+          Last Entry
         </div>
-        <div class="last-entry-field">
-          <span class="lef-label">Class</span>
-          <span class="lef-value" id="le-class">—</span>
-        </div>
-        <div class="last-entry-field">
-          <span class="lef-label">Roll Number</span>
-          <span class="lef-value" id="le-roll">—</span>
-        </div>
-        <div class="last-entry-field">
-          <span class="lef-label">Exam Type</span>
-          <span class="lef-value" id="le-exam">—</span>
+        <div class="panel-body">
+          <div class="last-entry-field">
+            <span class="lef-label">Student Name</span>
+            <span class="lef-value" id="le-name">—</span>
+          </div>
+          <div class="last-entry-field">
+            <span class="lef-label">Class</span>
+            <span class="lef-value" id="le-class">—</span>
+          </div>
+          <div class="last-entry-field">
+            <span class="lef-label">Roll Number</span>
+            <span class="lef-value" id="le-roll">—</span>
+          </div>
+          <div class="last-entry-field">
+            <span class="lef-label">Exam Type</span>
+            <span class="lef-value" id="le-exam">—</span>
+          </div>
         </div>
       </div>
+
+
     </div>
   </div>
   <footer class="text-center mt-4 p-3 bg-light">
@@ -276,19 +288,153 @@
     function showLastEntryPanel(entry) {
       if (!entry) return
       const panel = document.getElementById('lastEntryPanel')
-      document.getElementById('le-name').textContent = entry.name || '—'
+      const leName = document.getElementById('le-name')
+      leName.textContent = entry.name || '—'
+      leName.style.cursor = 'help'
+      leName.onclick = () => showEntryPopup(entry)
+
       document.getElementById('le-class').textContent = entry.className || entry.class || '—'
       document.getElementById('le-roll').textContent = entry.roll || '—'
       document.getElementById('le-exam').textContent = entry.exam || '—'
       panel.style.display = 'block'
     }
 
-    // Show last entry on page load (if any) and initialize fields
+    function showEntryPopup(entry) {
+      Swal.fire({
+        title: 'Entry Details',
+        html: `
+          <div class="text-start mt-3" style="font-size: 1.1rem; line-height: 1.6;">
+            <p><strong>Student:</strong> <span class="text-primary">${entry.name}</span></p>
+            <p><strong>Class:</strong> ${entry.className || entry.class}</p>
+            <p><strong>Roll No:</strong> ${entry.roll}</p>
+            <p><strong>Exam:</strong> ${entry.exam}</p>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'OK',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'swal2-confirm'
+        }
+      })
+    }
+
+    // ── Swipe-to-Delete Logic ──────────────────────────────────────────
+    const swipePanel = document.getElementById('lastEntryContent');
+    const swipeDeleteBtn = document.getElementById('swipeDeleteBtn');
+    let startX = 0;
+    let currentX = 0;
+    let isSwiping = false;
+    const threshold = -80;
+    const maxSwipe = -100;
+
+    function startSwipe(e) {
+      if (e.type === 'touchstart') {
+        startX = e.touches[0].clientX;
+      } else {
+        startX = e.clientX;
+      }
+      isSwiping = true;
+      swipePanel.style.transition = 'none';
+    }
+
+    function moveSwipe(e) {
+      if (!isSwiping) return;
+      let x;
+      if (e.type === 'touchmove') {
+        x = e.touches[0].clientX;
+      } else {
+        x = e.clientX;
+      }
+
+      currentX = x - startX;
+      // Only allow swiping left and limit the distance
+      if (currentX > 0) currentX = 0;
+      if (currentX < maxSwipe - 20) currentX = maxSwipe - 20;
+
+      swipePanel.style.transform = `translateX(${currentX}px)`;
+    }
+
+    function endSwipe() {
+      if (!isSwiping) return;
+      isSwiping = false;
+      swipePanel.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
+
+      if (currentX < threshold) {
+        swipePanel.style.transform = `translateX(${maxSwipe}px)`;
+      } else {
+        swipePanel.style.transform = 'translateX(0)';
+        currentX = 0;
+      }
+    }
+
+    swipePanel.addEventListener('mousedown', startSwipe);
+    swipePanel.addEventListener('touchstart', startSwipe, { passive: true });
+    window.addEventListener('mousemove', moveSwipe);
+    window.addEventListener('touchmove', moveSwipe, { passive: false });
+    window.addEventListener('mouseup', endSwipe);
+    window.addEventListener('touchend', endSwipe);
+
+    function unlockInputs() {
+      const rollInput = document.getElementById('rollNumber');
+      rollInput.readOnly = false;
+      rollInput.style.backgroundColor = '';
+      rollInput.style.cursor = '';
+      rollInput.title = '';
+
+      classSelect.style.pointerEvents = '';
+      classSelect.style.backgroundColor = '';
+      classSelect.tabIndex = 0;
+      classSelect.title = '';
+    }
+
+    // Click on the background delete button
+    swipeDeleteBtn.addEventListener('click', () => {
+      Swal.fire({
+        title: 'Clear Session?',
+        text: 'This will unlock the Class and Roll Number fields and clear the last entry reference.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, clear it',
+        cancelButtonText: 'No, keep it',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'btn btn-danger me-3',
+          cancelButton: 'btn btn-secondary'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.removeItem(LAST_ENTRY_KEY);
+          document.getElementById('lastEntryPanel').style.display = 'none';
+          unlockInputs();
+
+          // Reset position
+          swipePanel.style.transform = 'translateX(0)';
+          currentX = 0;
+
+          Toast.fire({
+            icon: 'info',
+            title: 'Session cleared & fields unlocked'
+          });
+        } else {
+          // Snap back if cancelled
+          swipePanel.style.transform = 'translateX(0)';
+          currentX = 0;
+        }
+      });
+    });
+    // ──────────────────────────────────────────────────────────────────
+
+    // Show last entry on page load
     const lastEntryOnLoad = loadLastEntry()
     showLastEntryPanel(lastEntryOnLoad)
     if (lastEntryOnLoad) {
       if (lastEntryOnLoad.class) {
         classSelect.value = lastEntryOnLoad.class
+        classSelect.style.pointerEvents = 'none'
+        classSelect.style.backgroundColor = '#f8f9fa'
+        classSelect.tabIndex = -1
+        classSelect.title = 'Class is locked. Clear browser data to change.'
       }
       if (lastEntryOnLoad.exam) {
         examTypeSelect.value = lastEntryOnLoad.exam
@@ -296,7 +442,12 @@
       if (lastEntryOnLoad.roll) {
         const nextRoll = parseInt(lastEntryOnLoad.roll) + 1
         if (!isNaN(nextRoll)) {
-          document.getElementById('rollNumber').value = nextRoll
+          const rollInput = document.getElementById('rollNumber');
+          rollInput.value = nextRoll
+          rollInput.readOnly = true
+          rollInput.style.backgroundColor = '#f8f9fa' // Slightly darker to show it's locked
+          rollInput.style.cursor = 'not-allowed'
+          rollInput.title = 'Roll number is automatically incremented and locked. Clear browser data to change.'
         }
       }
     }
@@ -407,9 +558,17 @@
 
       form.reset()
       classSelect.value = savedClass
+      classSelect.style.pointerEvents = 'none'
+      classSelect.style.backgroundColor = '#f8f9fa'
+      classSelect.tabIndex = -1
+
       examTypeSelect.value = savedExamType
       if (!isNaN(nextRoll)) {
-        document.getElementById('rollNumber').value = nextRoll
+        const rollInput = document.getElementById('rollNumber');
+        rollInput.value = nextRoll
+        rollInput.readOnly = true
+        rollInput.style.backgroundColor = '#f8f9fa'
+        rollInput.style.cursor = 'not-allowed'
       }
       updateSubjects()
 
@@ -417,6 +576,9 @@
       submitBtn.disabled = false
       submitBtn.innerHTML = originalBtnText
       document.getElementById('studentName').focus()
+
+      // Show popup immediately (Non-blocking)
+      showEntryPopup(currentEntry)
 
       // 4. Background Submission
       try {
@@ -432,11 +594,8 @@
         if (result.status === 'error') throw new Error(result.message)
 
         leName.innerHTML = `${currentEntry.name} <span class="text-success">✔</span>`
-        Toast.fire({
-          icon: 'success',
-          title: 'Submitted & Synced'
-        })
-
+        leName.style.cursor = 'pointer'
+        leName.onclick = () => showEntryPopup(currentEntry)
       } catch (error) {
         leName.innerHTML = `${currentEntry.name} <span class="text-danger">✘ Failed</span>`
         Swal.fire({
