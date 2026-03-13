@@ -47,7 +47,7 @@
       top: 0;
       right: 0;
       bottom: 0;
-      width: 100px;
+      width: 0;
       background: #dc3545;
       color: white;
       display: flex;
@@ -69,6 +69,46 @@
 
     .swipe-foreground:active {
       cursor: grabbing;
+    }
+
+    .panel-header {
+      background: #007bff;
+      color: white;
+      padding: 10px 15px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-body {
+      padding: 15px;
+      border: 1px solid #dee2e6;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .last-entry-field {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .lef-label {
+      font-weight: 600;
+      color: #6c757d;
+    }
+
+    .lef-value {
+      color: #212529;
+      font-weight: 500;
+    }
+
+    .swipe-delete-active {
+      background: #c82333 !important;
+      transform: scale(1.05);
+      transition: all 0.2s ease;
     }
 
 
@@ -93,6 +133,31 @@
       border-radius: 10px !important;
       padding: 12px 30px !important;
       font-weight: 600 !important;
+    }
+
+    /* Long-press Ring Indicator */
+    #longPressRing {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
+    #longPressRing svg circle.track {
+      fill: none;
+      stroke: #dee2e6;
+      stroke-width: 5;
+    }
+    #longPressRing svg circle.progress {
+      fill: none;
+      stroke: #dc3545;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-dasharray: 138;
+      stroke-dashoffset: 138;
+      transition: stroke-dashoffset 0.05s linear;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
     }
   </style>
 </head>
@@ -158,21 +223,21 @@
         <h5>Subject 1: English</h5>
         <label for="subject1Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject1Marks" name="subject1Marks" min="0"
-          max="100" placeholder="Enter marks" />
+          max="100" placeholder="Enter marks" required />
       </div>
 
       <div class="subject-item" data-subject="2">
         <h5>Subject 2: Bengali</h5>
         <label for="subject2Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject2Marks" name="subject2Marks" min="0"
-          max="100" placeholder="Enter marks" />
+          max="100" placeholder="Enter marks" required />
       </div>
 
       <div class="subject-item" data-subject="3">
         <h5>Subject 3: G Maths</h5>
         <label for="subject3Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject3Marks" name="subject3Marks" min="0"
-          max="100" placeholder="Enter marks" />
+          max="100" placeholder="Enter marks" required />
       </div>
 
       <div class="subject-item" data-subject="4">
@@ -181,7 +246,7 @@
         </h5>
         <label for="subject4Marks" class="form-label">Marks</label>
         <input type="number" class="form-control subject-marks" id="subject4Marks" name="subject4Marks" min="0"
-          max="100" placeholder="Enter marks" />
+          max="100" placeholder="Enter marks" required />
       </div>
 
       <div class="subject-item hidden-subject" data-subject="5">
@@ -217,7 +282,7 @@
           <path fill-rule="evenodd"
             d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
         </svg>
-        <small style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px;">Delete</small>
+        <small id="swipeText" style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px;"></small>
       </div>
 
       <!-- Swipe Foreground (The Content) -->
@@ -286,7 +351,10 @@
     }
 
     function showLastEntryPanel(entry) {
-      if (!entry) return
+      if (!entry || !entry.name) {
+        document.getElementById('lastEntryPanel').style.display = 'none';
+        return;
+      }
       const panel = document.getElementById('lastEntryPanel')
       const leName = document.getElementById('le-name')
       leName.textContent = entry.name || '—'
@@ -322,35 +390,44 @@
     // ── Swipe-to-Delete Logic ──────────────────────────────────────────
     const swipePanel = document.getElementById('lastEntryContent');
     const swipeDeleteBtn = document.getElementById('swipeDeleteBtn');
+    const swipeText = document.getElementById('swipeText');
+    const lastEntryPanel = document.getElementById('lastEntryPanel');
+    
     let startX = 0;
     let currentX = 0;
     let isSwiping = false;
-    const threshold = -80;
-    const maxSwipe = -100;
+    let panelWidth = 0;
+    
+    const DELETE_THRESHOLD_PCT = 0.7; // 70% of panel width for full swipe delete
 
     function startSwipe(e) {
-      if (e.type === 'touchstart') {
-        startX = e.touches[0].clientX;
-      } else {
-        startX = e.clientX;
-      }
+      startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+      panelWidth = lastEntryPanel.offsetWidth;
       isSwiping = true;
       swipePanel.style.transition = 'none';
+      swipeDeleteBtn.style.transition = 'none';
     }
 
     function moveSwipe(e) {
       if (!isSwiping) return;
-      let x;
-      if (e.type === 'touchmove') {
-        x = e.touches[0].clientX;
-      } else {
-        x = e.clientX;
-      }
-
+      
+      const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
       currentX = x - startX;
-      // Only allow swiping left and limit the distance
+      
+      // Only allow swiping left
       if (currentX > 0) currentX = 0;
-      if (currentX < maxSwipe - 20) currentX = maxSwipe - 20;
+      
+      // Visual feedback: If swiping past delete threshold, change color
+      const absoluteX = Math.abs(currentX);
+      swipeDeleteBtn.style.width = absoluteX + 'px';
+      
+      if (absoluteX > panelWidth * DELETE_THRESHOLD_PCT) {
+        swipeDeleteBtn.classList.add('swipe-delete-active');
+        swipeText.textContent = 'Release to Delete';
+      } else {
+        swipeDeleteBtn.classList.remove('swipe-delete-active');
+        swipeText.textContent = '';
+      }
 
       swipePanel.style.transform = `translateX(${currentX}px)`;
     }
@@ -358,14 +435,118 @@
     function endSwipe() {
       if (!isSwiping) return;
       isSwiping = false;
+      
       swipePanel.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
-
-      if (currentX < threshold) {
-        swipePanel.style.transform = `translateX(${maxSwipe}px)`;
+      swipeDeleteBtn.style.transition = 'all 0.3s ease';
+      
+      const absoluteX = Math.abs(currentX);
+      
+      if (absoluteX > panelWidth * DELETE_THRESHOLD_PCT) {
+        // FULL SWIPE: Trigger delete directly
+        triggerDelete();
       } else {
-        swipePanel.style.transform = 'translateX(0)';
-        currentX = 0;
+        // RESET: Always snap back if not a full swipe
+        resetSwipe();
       }
+    }
+
+    function resetSwipe() {
+      swipePanel.style.transform = 'translateX(0)';
+      swipeDeleteBtn.style.width = '0';
+      swipeDeleteBtn.classList.remove('swipe-delete-active');
+      currentX = 0;
+    }
+
+    function triggerDelete() {
+      const currentClass = classSelect.value;
+      const currentExam = examTypeSelect.value;
+
+      const isAnnual = currentExam === 'Annual';
+      const promptTitle = isAnnual ? 'Finish Session?' : 'Reset Batch?';
+      const promptText = isAnnual 
+        ? `You have finished the Annual exam for ${currentClass}. This will unlock all fields for a new session.`
+        : `This will reset Roll Number to 1 and advance Exam Type while keeping the Class (${currentClass}) same. Fields will remain locked.`;
+
+      Swal.fire({
+        title: promptTitle,
+        text: promptText,
+        icon: isAnnual ? 'success' : 'warning',
+        showCancelButton: true,
+        confirmButtonText: isAnnual ? 'Yes, finish session' : 'Yes, reset for next exam',
+        cancelButtonText: 'No, keep current',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: isAnnual ? 'btn btn-success me-3' : 'btn btn-danger me-3',
+          cancelButton: 'btn btn-secondary'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (isAnnual) {
+            // FULL RESET: User finished Annual, unlock everything for a new class/session
+            localStorage.removeItem(LAST_ENTRY_KEY);
+            form.reset();
+            unlockInputs();
+            updateSubjects(); // Hide extra subjects if back to default
+            updateExamOptions(); // Reset exam options to full list
+            lastEntryPanel.style.display = 'none';
+            resetSwipe();
+            Toast.fire({
+              icon: 'success',
+              title: 'Session finished. All fields unlocked.'
+            });
+            return;
+          }
+
+          // Transition logic filtered by class
+          let nextExam = currentExam;
+          if (currentClass === 'Nursery') {
+            if (currentExam === 'Half yearly') nextExam = 'Annual';
+          } else if (currentClass === '9' || currentClass === '10') {
+            const map9 = {
+              'Unit-1': 'Unit-2',
+              'Unit-2': 'Half yearly',
+              'Half yearly': 'Annual'
+            };
+            nextExam = map9[currentExam] || currentExam;
+          } else {
+            const standardMap = {
+              'Unit-1': 'Unit-2',
+              'Unit-2': 'Unit-3',
+              'Unit-3': 'Unit-4',
+              'Unit-4': 'Half yearly',
+              'Half yearly': 'Annual'
+            };
+            nextExam = standardMap[currentExam] || currentExam;
+          }
+
+          // Update storage with a reset entry (no name = hidden panel)
+          const resetEntry = {
+            class: currentClass,
+            exam: nextExam,
+            roll: 0, // So next entry logic (0 + 1) gives 1
+            name: ''
+          };
+          saveLastEntry(resetEntry);
+
+          // Update UI directly
+          classSelect.value = currentClass;
+          updateExamOptions(); // Sync dropdown options with class
+          examTypeSelect.value = nextExam;
+          const rollInput = document.getElementById('rollNumber');
+          rollInput.value = 1;
+          
+          lockInputs();
+          lastEntryPanel.style.display = 'none';
+          resetSwipe();
+          
+          Toast.fire({
+            icon: 'info',
+            title: `Batch reset. Now entering: ${nextExam}`
+          });
+        } else {
+          resetSwipe();
+        }
+      });
     }
 
     swipePanel.addEventListener('mousedown', startSwipe);
@@ -374,6 +555,24 @@
     window.addEventListener('touchmove', moveSwipe, { passive: false });
     window.addEventListener('mouseup', endSwipe);
     window.addEventListener('touchend', endSwipe);
+
+    function lockInputs() {
+      const rollInput = document.getElementById('rollNumber');
+      rollInput.readOnly = true;
+      rollInput.style.backgroundColor = '#f8f9fa';
+      rollInput.style.cursor = 'not-allowed';
+      rollInput.title = 'Roll number is locked. Swipe the Last Entry panel to reset batch.';
+
+      classSelect.style.pointerEvents = 'none';
+      classSelect.style.backgroundColor = '#f8f9fa';
+      classSelect.tabIndex = -1;
+      classSelect.title = 'Class is locked. Swipe the Last Entry panel to reset batch.';
+
+      examTypeSelect.style.pointerEvents = 'none';
+      examTypeSelect.style.backgroundColor = '#f8f9fa';
+      examTypeSelect.tabIndex = -1;
+      examTypeSelect.title = 'Exam Type is locked. Swipe the Last Entry panel to reset batch.';
+    }
 
     function unlockInputs() {
       const rollInput = document.getElementById('rollNumber');
@@ -386,43 +585,15 @@
       classSelect.style.backgroundColor = '';
       classSelect.tabIndex = 0;
       classSelect.title = '';
+
+      examTypeSelect.style.pointerEvents = '';
+      examTypeSelect.style.backgroundColor = '';
+      examTypeSelect.tabIndex = 0;
+      examTypeSelect.title = '';
     }
 
     // Click on the background delete button
-    swipeDeleteBtn.addEventListener('click', () => {
-      Swal.fire({
-        title: 'Clear Session?',
-        text: 'This will unlock the Class and Roll Number fields and clear the last entry reference.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, clear it',
-        cancelButtonText: 'No, keep it',
-        buttonsStyling: false,
-        customClass: {
-          confirmButton: 'btn btn-danger me-3',
-          cancelButton: 'btn btn-secondary'
-        }
-      }).then((result) => {
-        if (result.isConfirmed) {
-          localStorage.removeItem(LAST_ENTRY_KEY);
-          document.getElementById('lastEntryPanel').style.display = 'none';
-          unlockInputs();
-
-          // Reset position
-          swipePanel.style.transform = 'translateX(0)';
-          currentX = 0;
-
-          Toast.fire({
-            icon: 'info',
-            title: 'Session cleared & fields unlocked'
-          });
-        } else {
-          // Snap back if cancelled
-          swipePanel.style.transform = 'translateX(0)';
-          currentX = 0;
-        }
-      });
-    });
+    swipeDeleteBtn.addEventListener('click', triggerDelete);
     // ──────────────────────────────────────────────────────────────────
 
     // Show last entry on page load
@@ -431,31 +602,56 @@
     if (lastEntryOnLoad) {
       if (lastEntryOnLoad.class) {
         classSelect.value = lastEntryOnLoad.class
-        classSelect.style.pointerEvents = 'none'
-        classSelect.style.backgroundColor = '#f8f9fa'
-        classSelect.tabIndex = -1
-        classSelect.title = 'Class is locked. Clear browser data to change.'
+        updateExamOptions(); // Filter exams immediately
       }
       if (lastEntryOnLoad.exam) {
         examTypeSelect.value = lastEntryOnLoad.exam
       }
-      if (lastEntryOnLoad.roll) {
+      if (lastEntryOnLoad.roll !== undefined) {
         const nextRoll = parseInt(lastEntryOnLoad.roll) + 1
         if (!isNaN(nextRoll)) {
           const rollInput = document.getElementById('rollNumber');
           rollInput.value = nextRoll
-          rollInput.readOnly = true
-          rollInput.style.backgroundColor = '#f8f9fa' // Slightly darker to show it's locked
-          rollInput.style.cursor = 'not-allowed'
-          rollInput.title = 'Roll number is automatically incremented and locked. Clear browser data to change.'
         }
+      }
+      // If any previous data exists, keep fields locked
+      if (lastEntryOnLoad.class || lastEntryOnLoad.exam) {
+        lockInputs();
       }
     }
     // ─────────────────────────────────────────────────────────────────────
 
+    // Function to handle exam type availability per class
+    function updateExamOptions() {
+      const selectedClass = classSelect.value;
+      const options = examTypeSelect.options;
+      
+      for (let i = 1; i < options.length; i++) {
+        const opt = options[i];
+        const val = opt.value;
+        
+        if (selectedClass === 'Nursery') {
+          // Nursery: Only Half yearly and Annual
+          const allowed = ['Half yearly', 'Annual'];
+          opt.style.display = allowed.includes(val) ? 'block' : 'none';
+          opt.disabled = !allowed.includes(val);
+        } else if (selectedClass === '9' || selectedClass === '10') {
+          // Class 9/10: Unit-1, Unit-2, Half yearly, Annual
+          const allowed = ['Unit-1', 'Unit-2', 'Half yearly', 'Annual'];
+          opt.style.display = allowed.includes(val) ? 'block' : 'none';
+          opt.disabled = !allowed.includes(val);
+        } else {
+          // Others: All available
+          opt.style.display = 'block';
+          opt.disabled = false;
+        }
+      }
+    }
+
     // Function to handle subject visibility
     function updateSubjects() {
       const selectedClass = classSelect.value
+      updateExamOptions(); // Also update exam options when class changes
       let subjectsToShow = 4
 
       if (
@@ -497,10 +693,17 @@
           const subjectNumber = parseInt(
             subject.dataset.subject
           )
-          subject.classList.toggle(
-            'hidden-subject',
-            subjectNumber > subjectsToShow
-          )
+          const isHidden = subjectNumber > subjectsToShow;
+          subject.classList.toggle('hidden-subject', isHidden)
+          const input = subject.querySelector('.subject-marks');
+          if (input) {
+            if (isHidden) {
+              input.removeAttribute('required');
+              input.value = ''; // Clear hidden fields
+            } else {
+              input.setAttribute('required', 'required');
+            }
+          }
         })
     }
 
@@ -524,6 +727,102 @@
         toast.addEventListener('mouseleave', Swal.resumeTimer)
       }
     })
+
+    // ── Long-Press to Unlock Fields ──────────────────────────────────────
+    const LONG_PRESS_DURATION = 10000; // 10 seconds
+    const ringEl = document.createElement('div');
+    ringEl.id = 'longPressRing';
+    ringEl.innerHTML = `
+      <svg width="46" height="46" viewBox="0 0 46 46">
+        <circle class="track" cx="23" cy="23" r="22"/>
+        <circle class="progress" id="lpCircle" cx="23" cy="23" r="22"/>
+      </svg>`;
+    document.body.appendChild(ringEl);
+    const lpCircle = document.getElementById('lpCircle');
+    const CIRCUMFERENCE = 2 * Math.PI * 22; // ≈ 138.2
+
+    let lpTimer = null;
+    let lpStart = null;
+    let lpRafId = null;
+
+    function startLongPress(e) {
+      // Only trigger when fields are locked (a session is active)
+      if (!classSelect.value && !examTypeSelect.value) return;
+      if (classSelect.style.pointerEvents !== 'none') return; // not locked, ignore
+
+      const cx = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+      const cy = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+
+      ringEl.style.left = cx + 'px';
+      ringEl.style.top = cy + 'px';
+      ringEl.style.display = 'block';
+      lpCircle.style.strokeDashoffset = CIRCUMFERENCE;
+      lpStart = performance.now();
+
+      function animateRing(now) {
+        const elapsed = now - lpStart;
+        const progress = Math.min(elapsed / LONG_PRESS_DURATION, 1);
+        lpCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+        if (progress < 1) {
+          lpRafId = requestAnimationFrame(animateRing);
+        }
+      }
+      lpRafId = requestAnimationFrame(animateRing);
+
+      lpTimer = setTimeout(() => {
+        cancelAnimationFrame(lpRafId);
+        ringEl.style.display = 'none';
+        showUnlockPopup();
+      }, LONG_PRESS_DURATION);
+    }
+
+    function cancelLongPress() {
+      clearTimeout(lpTimer);
+      cancelAnimationFrame(lpRafId);
+      ringEl.style.display = 'none';
+      lpCircle.style.strokeDashoffset = CIRCUMFERENCE;
+    }
+
+    function showUnlockPopup() {
+      Swal.fire({
+        title: 'Unlock Fields?',
+        html: `
+          <p>Do you want to clear and unlock the locked fields?</p>
+          <div style="text-align:left; margin-top: 10px; font-size: 0.9rem;">
+            <p>📌 <strong>Class:</strong> ${classSelect.options[classSelect.selectedIndex]?.text || classSelect.value}</p>
+            <p>📋 <strong>Exam Type:</strong> ${examTypeSelect.value}</p>
+            <p>🔢 <strong>Roll Number:</strong> ${document.getElementById('rollNumber').value}</p>
+          </div>
+          <p style="margin-top:10px; color:#6c757d; font-size:0.85rem;">All three will be cleared and unlocked.</p>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, unlock',
+        cancelButtonText: 'Cancel',
+        buttonsStyling: false,
+        customClass: {
+          confirmButton: 'btn btn-warning me-3',
+          cancelButton: 'btn btn-secondary'
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          localStorage.removeItem(LAST_ENTRY_KEY);
+          lastEntryPanel.style.display = 'none';
+          form.reset();
+          unlockInputs();
+          updateSubjects();
+          updateExamOptions();
+          Toast.fire({ icon: 'info', title: 'Fields unlocked. You can now select Class & Exam Type.' });
+        }
+      });
+    }
+
+    form.addEventListener('mousedown', startLongPress);
+    form.addEventListener('touchstart', startLongPress, { passive: true });
+    form.addEventListener('mouseup', cancelLongPress);
+    form.addEventListener('mouseleave', cancelLongPress);
+    form.addEventListener('touchend', cancelLongPress);
+    form.addEventListener('touchcancel', cancelLongPress);
+    // ─────────────────────────────────────────────────────────────────────
 
     form.addEventListener('submit', async e => {
       e.preventDefault()
@@ -558,18 +857,14 @@
 
       form.reset()
       classSelect.value = savedClass
-      classSelect.style.pointerEvents = 'none'
-      classSelect.style.backgroundColor = '#f8f9fa'
-      classSelect.tabIndex = -1
-
       examTypeSelect.value = savedExamType
+      
       if (!isNaN(nextRoll)) {
         const rollInput = document.getElementById('rollNumber');
         rollInput.value = nextRoll
-        rollInput.readOnly = true
-        rollInput.style.backgroundColor = '#f8f9fa'
-        rollInput.style.cursor = 'not-allowed'
       }
+      
+      lockInputs();
       updateSubjects()
 
       // Ready for next entry!
