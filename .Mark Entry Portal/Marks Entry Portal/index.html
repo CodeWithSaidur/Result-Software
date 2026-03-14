@@ -106,7 +106,7 @@
     }
 
     .swipe-delete-active {
-      background: #c82333 !important;
+      background: #ffffff !important;
       transform: scale(1.05);
       transition: all 0.2s ease;
     }
@@ -133,31 +133,6 @@
       border-radius: 10px !important;
       padding: 12px 30px !important;
       font-weight: 600 !important;
-    }
-
-    /* Long-press Ring Indicator */
-    #longPressRing {
-      display: none;
-      position: fixed;
-      z-index: 9999;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-    }
-    #longPressRing svg circle.track {
-      fill: none;
-      stroke: #dee2e6;
-      stroke-width: 5;
-    }
-    #longPressRing svg circle.progress {
-      fill: none;
-      stroke: #dc3545;
-      stroke-width: 5;
-      stroke-linecap: round;
-      stroke-dasharray: 138;
-      stroke-dashoffset: 138;
-      transition: stroke-dashoffset 0.05s linear;
-      transform: rotate(-90deg);
-      transform-origin: 50% 50%;
     }
   </style>
 </head>
@@ -215,7 +190,8 @@
       <div class="mb-3">
         <label for="studentName" class="form-label">Student Name</label>
         <input type="text" class="form-control" id="studentName" name="studentName" placeholder="Enter student name"
-          required />
+          pattern="^[A-Za-z\s]+$" title="Name should only contain letters and spaces"
+          oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" required />
       </div>
 
 
@@ -282,7 +258,8 @@
           <path fill-rule="evenodd"
             d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
         </svg>
-        <small id="swipeText" style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px;"></small>
+        <small id="swipeText"
+          style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px;"></small>
       </div>
 
       <!-- Swipe Foreground (The Content) -->
@@ -316,6 +293,48 @@
 
 
     </div>
+
+    <!-- Offline Queue Panel -->
+    <div id="queuePanel" style="display: none; margin-top: 25px; padding: 20px; border-radius: 15px; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border: 1px solid rgba(0,0,0,0.05);">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="m-0 text-primary fw-bold d-flex align-items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cloud-arrow-up" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708z"/>
+            <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.5f.5.5 0 1 0 0 .991 3.5 3.5 0 1 1-3.5 3.5h-1a.5.5 0 0 0 0 1h1a4.5 4.5 0 1 0-.912-8.914 4.52 4.52 0 0 0-4.593 1.348A.5.5 0 1 0 5 4.996.5.5 0 1 0 4 5a3.5 3.5 0 0 0-.594 6.944L3.4 12A5 5 0 0 1 4.406 3.342"/>
+          </svg>
+          Pending Queue
+        </h5>
+        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold shadow-sm" id="queueCountBadge" style="font-size: 0.85rem;">0</span>
+      </div>
+      
+      <div class="table-responsive rounded-3 border" style="background: #fdfdfd;">
+        <table class="table table-hover table-borderless align-middle text-center mb-0" style="font-size: 0.9rem;">
+          <thead class="table-light text-secondary border-bottom">
+            <tr>
+              <th class="py-3">Roll</th>
+              <th class="py-3" title="Subject 1">S1</th>
+              <th class="py-3" title="Subject 2">S2</th>
+              <th class="py-3" title="Subject 3">S3</th>
+              <th class="py-3" title="Subject 4">S4</th>
+              <th class="py-3" title="Subject 5">S5</th>
+              <th class="py-3" title="Subject 6">S6</th>
+              <th class="py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="queueTableBody">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+      </div>
+      
+      <button class="btn btn-success w-100 mt-3 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-2" id="finalSubmitBtn" style="padding: 12px; border-radius: 10px; font-size: 1.05rem; transition: transform 0.2s; background: linear-gradient(135deg, #28a745, #218838); border: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+        </svg>
+        <span>Submit All to Google Sheets</span>
+      </button>
+    </div>
+
   </div>
   <footer class="text-center mt-4 p-3 bg-light">
     <p>&copy; Talent Senior Secondary School</p>
@@ -392,12 +411,12 @@
     const swipeDeleteBtn = document.getElementById('swipeDeleteBtn');
     const swipeText = document.getElementById('swipeText');
     const lastEntryPanel = document.getElementById('lastEntryPanel');
-    
+
     let startX = 0;
     let currentX = 0;
     let isSwiping = false;
     let panelWidth = 0;
-    
+
     const DELETE_THRESHOLD_PCT = 0.7; // 70% of panel width for full swipe delete
 
     function startSwipe(e) {
@@ -410,17 +429,17 @@
 
     function moveSwipe(e) {
       if (!isSwiping) return;
-      
+
       const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
       currentX = x - startX;
-      
+
       // Only allow swiping left
       if (currentX > 0) currentX = 0;
-      
+
       // Visual feedback: If swiping past delete threshold, change color
       const absoluteX = Math.abs(currentX);
       swipeDeleteBtn.style.width = absoluteX + 'px';
-      
+
       if (absoluteX > panelWidth * DELETE_THRESHOLD_PCT) {
         swipeDeleteBtn.classList.add('swipe-delete-active');
         swipeText.textContent = 'Release to Delete';
@@ -435,12 +454,12 @@
     function endSwipe() {
       if (!isSwiping) return;
       isSwiping = false;
-      
+
       swipePanel.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
       swipeDeleteBtn.style.transition = 'all 0.3s ease';
-      
+
       const absoluteX = Math.abs(currentX);
-      
+
       if (absoluteX > panelWidth * DELETE_THRESHOLD_PCT) {
         // FULL SWIPE: Trigger delete directly
         triggerDelete();
@@ -463,7 +482,7 @@
 
       const isAnnual = currentExam === 'Annual';
       const promptTitle = isAnnual ? 'Finish Session?' : 'Reset Batch?';
-      const promptText = isAnnual 
+      const promptText = isAnnual
         ? `You have finished the Annual exam for ${currentClass}. This will unlock all fields for a new session.`
         : `This will reset Roll Number to 1 and advance Exam Type while keeping the Class (${currentClass}) same. Fields will remain locked.`;
 
@@ -534,11 +553,11 @@
           examTypeSelect.value = nextExam;
           const rollInput = document.getElementById('rollNumber');
           rollInput.value = 1;
-          
+
           lockInputs();
           lastEntryPanel.style.display = 'none';
           resetSwipe();
-          
+
           Toast.fire({
             icon: 'info',
             title: `Batch reset. Now entering: ${nextExam}`
@@ -556,22 +575,45 @@
     window.addEventListener('mouseup', endSwipe);
     window.addEventListener('touchend', endSwipe);
 
+    const lockedInputHandler = (e) => {
+      // Ignore Tab key so users can still tab through form (though we set tabIndex=-1)
+      if (e.type === 'keydown' && e.key === 'Tab') return;
+      e.preventDefault();
+      if (e.target) e.target.blur();
+
+      Swal.fire({
+        icon: 'warning',
+        title: 'Fields Locked',
+        text: 'Class, Exam Type, and Roll Number are unchangeable. Upload data in a continuous manner based on the shown Class, Exam Type, and Roll Number. if you want to change any of these fields, Contact +91 97062 16141 who will guide you.',
+        confirmButtonText: 'Understood'
+      });
+    };
+
     function lockInputs() {
       const rollInput = document.getElementById('rollNumber');
       rollInput.readOnly = true;
       rollInput.style.backgroundColor = '#f8f9fa';
       rollInput.style.cursor = 'not-allowed';
       rollInput.title = 'Roll number is locked. Swipe the Last Entry panel to reset batch.';
+      rollInput.addEventListener('click', lockedInputHandler);
+      rollInput.addEventListener('keydown', lockedInputHandler);
 
-      classSelect.style.pointerEvents = 'none';
+      // Remove pointerEvents = 'none' so that we can intercept mousedown
+      classSelect.style.pointerEvents = '';
       classSelect.style.backgroundColor = '#f8f9fa';
+      classSelect.style.cursor = 'not-allowed';
       classSelect.tabIndex = -1;
       classSelect.title = 'Class is locked. Swipe the Last Entry panel to reset batch.';
+      classSelect.addEventListener('mousedown', lockedInputHandler);
+      classSelect.addEventListener('keydown', lockedInputHandler);
 
-      examTypeSelect.style.pointerEvents = 'none';
+      examTypeSelect.style.pointerEvents = '';
       examTypeSelect.style.backgroundColor = '#f8f9fa';
+      examTypeSelect.style.cursor = 'not-allowed';
       examTypeSelect.tabIndex = -1;
       examTypeSelect.title = 'Exam Type is locked. Swipe the Last Entry panel to reset batch.';
+      examTypeSelect.addEventListener('mousedown', lockedInputHandler);
+      examTypeSelect.addEventListener('keydown', lockedInputHandler);
     }
 
     function unlockInputs() {
@@ -580,16 +622,24 @@
       rollInput.style.backgroundColor = '';
       rollInput.style.cursor = '';
       rollInput.title = '';
+      rollInput.removeEventListener('click', lockedInputHandler);
+      rollInput.removeEventListener('keydown', lockedInputHandler);
 
       classSelect.style.pointerEvents = '';
       classSelect.style.backgroundColor = '';
+      classSelect.style.cursor = '';
       classSelect.tabIndex = 0;
       classSelect.title = '';
+      classSelect.removeEventListener('mousedown', lockedInputHandler);
+      classSelect.removeEventListener('keydown', lockedInputHandler);
 
       examTypeSelect.style.pointerEvents = '';
       examTypeSelect.style.backgroundColor = '';
+      examTypeSelect.style.cursor = '';
       examTypeSelect.tabIndex = 0;
       examTypeSelect.title = '';
+      examTypeSelect.removeEventListener('mousedown', lockedInputHandler);
+      examTypeSelect.removeEventListener('keydown', lockedInputHandler);
     }
 
     // Click on the background delete button
@@ -625,11 +675,11 @@
     function updateExamOptions() {
       const selectedClass = classSelect.value;
       const options = examTypeSelect.options;
-      
+
       for (let i = 1; i < options.length; i++) {
         const opt = options[i];
         const val = opt.value;
-        
+
         if (selectedClass === 'Nursery') {
           // Nursery: Only Half yearly and Annual
           const allowed = ['Half yearly', 'Annual'];
@@ -716,6 +766,38 @@
     // Initial update on page load
     updateSubjects()
 
+    function updateMaxMarks() {
+      const selectedClass = classSelect.value;
+      const selectedExam = examTypeSelect.value;
+
+      let maxMark = 100; // default
+
+      if (selectedClass && selectedExam) {
+        const isUnit = selectedExam.startsWith('Unit');
+        const isHalfYearlyOrAnnual = selectedExam === 'Half yearly' || selectedExam === 'Annual';
+
+        if (selectedClass === 'Nursery') {
+          if (isHalfYearlyOrAnnual) maxMark = 50;
+        } else if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(selectedClass)) {
+          if (isUnit) maxMark = 25;
+          else if (isHalfYearlyOrAnnual) maxMark = 100;
+        } else if (['9', '10'].includes(selectedClass)) {
+          if (isUnit) maxMark = 50;
+          else if (isHalfYearlyOrAnnual) maxMark = 100;
+        }
+      }
+
+      document.querySelectorAll('.subject-marks').forEach(input => {
+        input.setAttribute('max', maxMark);
+        input.placeholder = 'Full Marks : ' + maxMark;
+      });
+    }
+
+    classSelect.addEventListener('change', updateMaxMarks);
+    examTypeSelect.addEventListener('change', updateMaxMarks);
+    updateMaxMarks();
+
+
     const Toast = Swal.mixin({
       toast: true,
       position: 'top-end',
@@ -728,83 +810,40 @@
       }
     })
 
-    // ── Long-Press to Unlock Fields ──────────────────────────────────────
-    const LONG_PRESS_DURATION = 10000; // 10 seconds
-    const ringEl = document.createElement('div');
-    ringEl.id = 'longPressRing';
-    ringEl.innerHTML = `
-      <svg width="46" height="46" viewBox="0 0 46 46">
-        <circle class="track" cx="23" cy="23" r="22"/>
-        <circle class="progress" id="lpCircle" cx="23" cy="23" r="22"/>
-      </svg>`;
-    document.body.appendChild(ringEl);
-    const lpCircle = document.getElementById('lpCircle');
-    const CIRCUMFERENCE = 2 * Math.PI * 22; // ≈ 138.2
-
-    let lpTimer = null;
-    let lpStart = null;
-    let lpRafId = null;
-
-    function startLongPress(e) {
+    // ── Click Footer to Unlock Fields ──────────────────────────────────────
+    function showUnlockPopup() {
       // Only trigger when fields are locked (a session is active)
       if (!classSelect.value && !examTypeSelect.value) return;
-      if (classSelect.style.pointerEvents !== 'none') return; // not locked, ignore
+      if (!document.getElementById('rollNumber').readOnly) return; // not locked, ignore
 
-      const cx = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-      const cy = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
-
-      ringEl.style.left = cx + 'px';
-      ringEl.style.top = cy + 'px';
-      ringEl.style.display = 'block';
-      lpCircle.style.strokeDashoffset = CIRCUMFERENCE;
-      lpStart = performance.now();
-
-      function animateRing(now) {
-        const elapsed = now - lpStart;
-        const progress = Math.min(elapsed / LONG_PRESS_DURATION, 1);
-        lpCircle.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
-        if (progress < 1) {
-          lpRafId = requestAnimationFrame(animateRing);
-        }
-      }
-      lpRafId = requestAnimationFrame(animateRing);
-
-      lpTimer = setTimeout(() => {
-        cancelAnimationFrame(lpRafId);
-        ringEl.style.display = 'none';
-        showUnlockPopup();
-      }, LONG_PRESS_DURATION);
-    }
-
-    function cancelLongPress() {
-      clearTimeout(lpTimer);
-      cancelAnimationFrame(lpRafId);
-      ringEl.style.display = 'none';
-      lpCircle.style.strokeDashoffset = CIRCUMFERENCE;
-    }
-
-    function showUnlockPopup() {
       Swal.fire({
         title: 'Unlock Fields?',
+        input: 'text',
+        inputPlaceholder: 'Enter Admin Password',
         html: `
-          <p>Do you want to clear and unlock the locked fields?</p>
+          <p>Please enter the admin password to clear and unlock the locked fields.</p>
           <div style="text-align:left; margin-top: 10px; font-size: 0.9rem;">
             <p>📌 <strong>Class:</strong> ${classSelect.options[classSelect.selectedIndex]?.text || classSelect.value}</p>
             <p>📋 <strong>Exam Type:</strong> ${examTypeSelect.value}</p>
             <p>🔢 <strong>Roll Number:</strong> ${document.getElementById('rollNumber').value}</p>
-          </div>
-          <p style="margin-top:10px; color:#6c757d; font-size:0.85rem;">All three will be cleared and unlocked.</p>`,
-        icon: 'question',
+          </div>`,
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonText: 'Yes, unlock',
+        confirmButtonText: 'Unlock',
         cancelButtonText: 'Cancel',
         buttonsStyling: false,
         customClass: {
           confirmButton: 'btn btn-warning me-3',
           cancelButton: 'btn btn-secondary'
+        },
+        preConfirm: (password) => {
+          if (password !== 'Admin') {
+            Swal.showValidationMessage('Incorrect password');
+          }
+          return password;
         }
       }).then(result => {
-        if (result.isConfirmed) {
+        if (result.isConfirmed && result.value === 'Admin') {
           localStorage.removeItem(LAST_ENTRY_KEY);
           lastEntryPanel.style.display = 'none';
           form.reset();
@@ -816,13 +855,220 @@
       });
     }
 
-    form.addEventListener('mousedown', startLongPress);
-    form.addEventListener('touchstart', startLongPress, { passive: true });
-    form.addEventListener('mouseup', cancelLongPress);
-    form.addEventListener('mouseleave', cancelLongPress);
-    form.addEventListener('touchend', cancelLongPress);
-    form.addEventListener('touchcancel', cancelLongPress);
+    const unlockFooter = document.querySelector('footer');
+    if (unlockFooter) {
+      unlockFooter.style.cursor = 'pointer';
+      unlockFooter.addEventListener('click', showUnlockPopup);
+    }
     // ─────────────────────────────────────────────────────────────────────
+
+    // ── IndexedDB Logic for Queue ──────────────────────────────────────
+    const DB_NAME = 'MarksFormDB';
+    const STORE_NAME = 'MarksQueue';
+    let db;
+
+    const initDB = () => {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+          db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+          }
+        };
+        request.onsuccess = (e) => {
+          db = e.target.result;
+          renderQueue();
+          resolve();
+        };
+        request.onerror = (e) => reject(e.target.error);
+      });
+    };
+
+    const addRecordToQueue = (record) => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.add(record);
+        req.onsuccess = () => resolve();
+        req.onerror = (e) => reject(e.target.error);
+      });
+    };
+
+    const deleteRecordFromQueue = (id) => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.delete(id);
+        req.onsuccess = () => resolve();
+        req.onerror = (e) => reject(e.target.error);
+      });
+    };
+
+    const getAllRecordsFromQueue = () => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    };
+
+    initDB();
+
+    const queuePanel = document.getElementById('queuePanel');
+    const queueTableBody = document.getElementById('queueTableBody');
+    const finalSubmitBtn = document.getElementById('finalSubmitBtn');
+
+    let isSyncing = false;
+
+    async function renderQueue() {
+      if (!db) return;
+      const records = await getAllRecordsFromQueue();
+
+      const badge = document.getElementById('queueCountBadge');
+      if (badge) badge.textContent = records.length;
+
+      if (records.length === 0) {
+        if (queuePanel) queuePanel.style.display = 'none';
+        return;
+      }
+
+      if (queuePanel) queuePanel.style.display = 'block';
+      if (queueTableBody) queueTableBody.innerHTML = '';
+
+      records.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #f0f0f0';
+        tr.innerHTML = `
+          <td class="fw-bold text-dark py-3">${r.rollNumber || '—'}</td>
+          <td class="text-muted py-3">${r.subject1Marks || '—'}</td>
+          <td class="text-muted py-3">${r.subject2Marks || '—'}</td>
+          <td class="text-muted py-3">${r.subject3Marks || '—'}</td>
+          <td class="text-muted py-3">${r.subject4Marks || '—'}</td>
+          <td class="text-muted py-3">${r.subject5Marks || '—'}</td>
+          <td class="text-muted py-3">${r.subject6Marks || '—'}</td>
+          <td style="white-space: nowrap;" class="py-3">
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-none me-1" style="font-size: 0.8rem; font-weight: 500;" onclick="editRecord(${r.id})" ${isSyncing ? 'disabled' : ''}>Edit</button>
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-none" style="font-size: 0.8rem; font-weight: 500;" onclick="deleteAndRender(${r.id})" ${isSyncing ? 'disabled' : ''}>Del</button>
+          </td>
+        `;
+        queueTableBody.appendChild(tr);
+      });
+    }
+
+    async function deleteAndRender(id) {
+      if (confirm('Delete this pending entry?')) {
+        await deleteRecordFromQueue(id);
+        renderQueue();
+      }
+    }
+
+    async function editRecord(id) {
+      if (isSyncing) return;
+      const records = await getAllRecordsFromQueue();
+      const record = records.find(r => r.id === id);
+      if (!record) return;
+
+      let subjectsToShow = 4;
+      const sc = record.studentClass;
+      if (['2', '3', '4', '5'].includes(sc)) subjectsToShow = 5;
+      else if (['6', '7', '8', '9', '10'].includes(sc)) subjectsToShow = 6;
+
+      let html = `<div style="overflow-x: hidden; padding: 5px;">`;
+      html += `<input id="swal-name" class="swal2-input" placeholder="Student Name" value="${record.studentName || ''}" style="margin: 0 auto 15px auto; width: 85%; max-width: 100%; box-sizing: border-box; display: block;">`;
+      for (let i = 1; i <= subjectsToShow; i++) {
+        html += `<input id="swal-s${i}" type="number" class="swal2-input" placeholder="Subject ${i} Marks" value="${record['subject' + i + 'Marks'] || ''}" style="margin: 0 auto 15px auto; width: 85%; max-width: 100%; box-sizing: border-box; display: block;">`;
+      }
+      html += `</div>`;
+
+      const { value: formValues } = await Swal.fire({
+        title: 'Edit Roll ' + record.rollNumber,
+        html: html,
+        focusConfirm: false,
+        showCancelButton: true,
+        preConfirm: () => {
+          const result = { studentName: document.getElementById('swal-name').value };
+          for (let i = 1; i <= subjectsToShow; i++) {
+            result['subject' + i + 'Marks'] = document.getElementById('swal-s' + i).value;
+          }
+          return result;
+        }
+      });
+
+      if (formValues) {
+        record.studentName = formValues.studentName;
+        for (let i = 1; i <= subjectsToShow; i++) {
+          record['subject' + i + 'Marks'] = formValues['subject' + i + 'Marks'];
+        }
+
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        store.put(record);
+
+        tx.oncomplete = () => {
+          renderQueue();
+          Toast.fire({ icon: 'success', title: 'Entry updated successfully.' });
+        };
+        tx.onerror = () => {
+          Swal.fire('Error', 'Failed to update entry.', 'error');
+        };
+      }
+    }
+
+    if (finalSubmitBtn) {
+      finalSubmitBtn.addEventListener('click', async () => {
+        if (isSyncing) return;
+        const records = await getAllRecordsFromQueue();
+        if (records.length === 0) return;
+
+        const originalBtnText = finalSubmitBtn.innerHTML;
+        isSyncing = true;
+        finalSubmitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span><span>Syncing Data...</span>';
+        finalSubmitBtn.disabled = true;
+        renderQueue();
+
+        let successCount = 0;
+        let failedCount = 0;
+
+        for (const record of records) {
+          try {
+            const payloadRecord = { ...record };
+            delete payloadRecord.id;
+
+            const payload = new URLSearchParams(payloadRecord).toString();
+            const response = await fetch(scriptURL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: payload
+            });
+
+            if (!response.ok) throw new Error('Network error');
+            const result = await response.json();
+            if (result.status === 'error') throw new Error(result.message);
+
+            await deleteRecordFromQueue(record.id);
+            successCount++;
+          } catch (err) {
+            console.error('Failed to sync record', record, err);
+            failedCount++;
+            break; // Stop on first error
+          }
+        }
+
+        isSyncing = false;
+        finalSubmitBtn.innerHTML = originalBtnText;
+        finalSubmitBtn.disabled = false;
+        renderQueue();
+
+        if (failedCount > 0) {
+          Swal.fire('Sync Paused', `Synced ${successCount} entries before a network error occurred. Please check your connection and try again.`, 'warning');
+        } else {
+          Swal.fire('Success', `All ${successCount} entries synced successfully!`, 'success');
+        }
+      });
+    }
 
     form.addEventListener('submit', async e => {
       e.preventDefault()
@@ -830,11 +1076,13 @@
       const submitBtn = document.getElementById('saveBtn')
       const originalBtnText = submitBtn.innerHTML
 
-      // 1. Brief feedback and data capture
-      submitBtn.disabled = true
-      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>'
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Queuing...';
 
       const formData = new FormData(form)
+      const recordData = {};
+      formData.forEach((value, key) => { recordData[key] = value; });
+
       const currentEntry = {
         name: document.getElementById('studentName').value.trim(),
         class: classSelect.value,
@@ -843,62 +1091,47 @@
         exam: examTypeSelect.value
       }
 
-      // 2. Immediate UI Update
-      saveLastEntry(currentEntry)
-      showLastEntryPanel(currentEntry)
-
-      const leName = document.getElementById('le-name')
-      leName.innerHTML = `${currentEntry.name} <span class="spinner-border spinner-border-sm text-primary" style="width: 10px; height: 10px;"></span>`
-
-      // 3. Reset form and Re-enable button immediately
-      const savedClass = classSelect.value
-      const savedExamType = examTypeSelect.value
-      const nextRoll = parseInt(currentEntry.roll) + 1
-
-      form.reset()
-      classSelect.value = savedClass
-      examTypeSelect.value = savedExamType
-      
-      if (!isNaN(nextRoll)) {
-        const rollInput = document.getElementById('rollNumber');
-        rollInput.value = nextRoll
-      }
-      
-      lockInputs();
-      updateSubjects()
-
-      // Ready for next entry!
-      submitBtn.disabled = false
-      submitBtn.innerHTML = originalBtnText
-      document.getElementById('studentName').focus()
-
-      // Show popup immediately (Non-blocking)
-      showEntryPopup(currentEntry)
-
-      // 4. Background Submission
       try {
-        const payload = new URLSearchParams(formData).toString()
-        const response = await fetch(scriptURL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: payload
-        })
+        await addRecordToQueue(recordData);
+        await renderQueue();
 
-        if (!response.ok) throw new Error('Network error')
-        const result = await response.json()
-        if (result.status === 'error') throw new Error(result.message)
+        saveLastEntry(currentEntry);
+        showLastEntryPanel(currentEntry);
 
-        leName.innerHTML = `${currentEntry.name} <span class="text-success">✔</span>`
-        leName.style.cursor = 'pointer'
-        leName.onclick = () => showEntryPopup(currentEntry)
-      } catch (error) {
-        leName.innerHTML = `${currentEntry.name} <span class="text-danger">✘ Failed</span>`
-        Swal.fire({
-          icon: 'error',
-          title: 'Sync Failed',
-          text: `Last entry (${currentEntry.name}) failed to upload: ${error.message}. Please check your connection and re-enter if necessary.`,
-          confirmButtonColor: '#dc3545'
-        })
+        const leName = document.getElementById('le-name');
+        leName.innerHTML = `${currentEntry.name}`;
+        leName.style.cursor = 'pointer';
+        leName.onclick = () => showEntryPopup(currentEntry);
+
+        const savedClass = classSelect.value;
+        const savedExamType = examTypeSelect.value;
+        const nextRoll = parseInt(currentEntry.roll) + 1;
+
+        form.reset();
+        classSelect.value = savedClass;
+        examTypeSelect.value = savedExamType;
+
+        if (!isNaN(nextRoll)) {
+          const rollInput = document.getElementById('rollNumber');
+          rollInput.value = nextRoll;
+        }
+
+        lockInputs();
+        updateSubjects();
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+        document.getElementById('studentName').focus();
+
+        Toast.fire({
+          icon: 'success',
+          title: 'Added to pending queue.'
+        });
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+        Swal.fire('Error', 'Failed to save to local queue.', 'error');
+        console.error(err);
       }
     })
   </script>
