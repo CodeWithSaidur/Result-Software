@@ -10,6 +10,7 @@
   <style>
     body {
       background-color: #f8f9fa;
+      overflow-x: hidden;
     }
 
     .container {
@@ -45,16 +46,16 @@
     .swipe-background {
       position: absolute;
       top: 0;
-      right: 0;
+      left: 0;
       bottom: 0;
       width: 0;
-      background: #dc3545;
-      color: white;
+      background: lightgreen;
+      color: #004d00;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-radius: 0 10px 10px 0;
+      border-radius: 10px 0 0 10px;
       cursor: pointer;
       z-index: 1;
     }
@@ -134,6 +135,96 @@
       padding: 12px 30px !important;
       font-weight: 600 !important;
     }
+
+    /* ── Queue Table: No horizontal scroll, all columns fit ── */
+    .queue-table-wrap {
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid #e8e8e8;
+      background: #fdfdfd;
+      width: 100%;
+    }
+
+    .queue-table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    .queue-table thead th {
+      padding: 10px 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #6c757d;
+      text-align: center;
+      border-bottom: 1px solid #dee2e6;
+      background: #f8f9fa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .queue-table tbody td {
+      padding: 8px 3px;
+      text-align: center;
+      vertical-align: middle;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.82rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Column widths: Roll gets a bit more, subject cols equal, Actions gets enough */
+    .queue-table col.col-roll {
+      width: 14%;
+    }
+
+    .queue-table col.col-subject {
+      width: 9%;
+    }
+
+    .queue-table col.col-actions {
+      width: 22%;
+    }
+
+    .queue-table .btn-action {
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      line-height: 1.4;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 480px) {
+      .queue-table {
+        font-size: 0.72rem;
+      }
+
+      .queue-table thead th,
+      .queue-table tbody td {
+        padding: 6px 2px;
+        font-size: 0.72rem;
+      }
+
+      .queue-table .btn-action {
+        font-size: 0.62rem;
+        padding: 2px 5px;
+      }
+
+      .queue-table col.col-roll {
+        width: 13%;
+      }
+
+      .queue-table col.col-subject {
+        width: 9%;
+      }
+
+      .queue-table col.col-actions {
+        width: 21%;
+      }
+    }
   </style>
 </head>
 
@@ -142,6 +233,7 @@
     <h3 class="text-center mb-4">
       Internal Examination Marks Entry Portal
     </h3>
+
     <form name="submit-to-google-sheet">
 
       <div class="mb-3">
@@ -187,11 +279,11 @@
           required />
       </div>
 
-      <div class="mb-3">
+      <div class="mb-3" id="studentNameWrapper">
         <label for="studentName" class="form-label">Student Name</label>
         <input type="text" class="form-control" id="studentName" name="studentName" placeholder="Enter student name"
           pattern="^[A-Za-z\s]+$" title="Name should only contain letters and spaces"
-          oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" required />
+          oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" />
       </div>
 
 
@@ -250,16 +342,15 @@
     <!-- Last Entry Panel -->
     <div id="lastEntryPanel"
       style="display: none; margin-top: 20px; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.15);">
-      <!-- Swipe Background (The Delete Button Behind) -->
+      <!-- Swipe Background (The Upgrade Button Behind) -->
       <div class="swipe-background" id="swipeDeleteBtn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-          <path
-            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+          class="bi bi-arrow-up-right-circle" viewBox="0 0 16 16">
           <path fill-rule="evenodd"
-            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+            d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.854 10.854a.5.5 0 0 0 .708 0L10 7.414V9.5a.5.5 0 0 0 1 0V5.5a.5.5 0 0 0-.5-.5h-4a.5.5 0 0 0 0 1h2.086l-3.44 3.44a.5.5 0 0 0 0 .708z" />
         </svg>
         <small id="swipeText"
-          style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px;"></small>
+          style="font-weight: 700; font-size: 0.7rem; text-transform: uppercase; margin-top: 4px; text-align: center;"></small>
       </div>
 
       <!-- Swipe Foreground (The Content) -->
@@ -295,30 +386,45 @@
     </div>
 
     <!-- Offline Queue Panel -->
-    <div id="queuePanel" style="display: none; margin-top: 25px; padding: 20px; border-radius: 15px; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border: 1px solid rgba(0,0,0,0.05);">
+    <div id="queuePanel"
+      style="display: none; margin-top: 25px; padding: 20px; border-radius: 15px; background: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); border: 1px solid rgba(0,0,0,0.05);">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="m-0 text-primary fw-bold d-flex align-items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-cloud-arrow-up" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708z"/>
-            <path d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.5f.5.5 0 1 0 0 .991 3.5 3.5 0 1 1-3.5 3.5h-1a.5.5 0 0 0 0 1h1a4.5 4.5 0 1 0-.912-8.914 4.52 4.52 0 0 0-4.593 1.348A.5.5 0 1 0 5 4.996.5.5 0 1 0 4 5a3.5 3.5 0 0 0-.594 6.944L3.4 12A5 5 0 0 1 4.406 3.342"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+            class="bi bi-cloud-arrow-up" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+              d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708z" />
+            <path
+              d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.5f.5.5 0 1 0 0 .991 3.5 3.5 0 1 1-3.5 3.5h-1a.5.5 0 0 0 0 1h1a4.5 4.5 0 1 0-.912-8.914 4.52 4.52 0 0 0-4.593 1.348A.5.5 0 1 0 5 4.996.5.5 0 1 0 4 5a3.5 3.5 0 0 0-.594 6.944L3.4 12A5 5 0 0 1 4.406 3.342" />
           </svg>
           Pending Queue
         </h5>
-        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold shadow-sm" id="queueCountBadge" style="font-size: 0.85rem;">0</span>
+        <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold shadow-sm" id="queueCountBadge"
+          style="font-size: 0.85rem;">0</span>
       </div>
-      
-      <div class="table-responsive rounded-3 border" style="background: #fdfdfd;">
-        <table class="table table-hover table-borderless align-middle text-center mb-0" style="font-size: 0.9rem;">
-          <thead class="table-light text-secondary border-bottom">
+
+      <div class="queue-table-wrap">
+        <table class="queue-table">
+          <colgroup>
+            <col class="col-roll">
+            <col class="col-subject">
+            <col class="col-subject">
+            <col class="col-subject">
+            <col class="col-subject">
+            <col class="col-subject">
+            <col class="col-subject">
+            <col class="col-actions">
+          </colgroup>
+          <thead>
             <tr>
-              <th class="py-3">Roll</th>
-              <th class="py-3" title="Subject 1">S1</th>
-              <th class="py-3" title="Subject 2">S2</th>
-              <th class="py-3" title="Subject 3">S3</th>
-              <th class="py-3" title="Subject 4">S4</th>
-              <th class="py-3" title="Subject 5">S5</th>
-              <th class="py-3" title="Subject 6">S6</th>
-              <th class="py-3">Actions</th>
+              <th title="Roll Number">Roll</th>
+              <th title="Subject 1">S1</th>
+              <th title="Subject 2">S2</th>
+              <th title="Subject 3">S3</th>
+              <th title="Subject 4">S4</th>
+              <th title="Subject 5">S5</th>
+              <th title="Subject 6">S6</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="queueTableBody">
@@ -326,10 +432,14 @@
           </tbody>
         </table>
       </div>
-      
-      <button class="btn btn-success w-100 mt-3 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-2" id="finalSubmitBtn" style="padding: 12px; border-radius: 10px; font-size: 1.05rem; transition: transform 0.2s; background: linear-gradient(135deg, #28a745, #218838); border: none;">
+
+      <button
+        class="btn btn-success w-100 mt-3 fw-bold shadow-sm d-flex justify-content-center align-items-center gap-2"
+        id="finalSubmitBtn"
+        style="padding: 12px; border-radius: 10px; font-size: 1.05rem; transition: transform 0.2s; background: linear-gradient(135deg, #28a745, #218838); border: none;">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-          <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+          <path
+            d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
         </svg>
         <span>Submit All to Google Sheets</span>
       </button>
@@ -370,15 +480,16 @@
     }
 
     function showLastEntryPanel(entry) {
-      if (!entry || !entry.name) {
+      // Show panel as long as class or roll exists — name may be empty for non-Unit-1 exams
+      if (!entry || (!entry.class && !entry.roll)) {
         document.getElementById('lastEntryPanel').style.display = 'none';
         return;
       }
       const panel = document.getElementById('lastEntryPanel')
       const leName = document.getElementById('le-name')
       leName.textContent = entry.name || '—'
-      leName.style.cursor = 'help'
-      leName.onclick = () => showEntryPopup(entry)
+      leName.style.cursor = entry.name ? 'help' : 'default'
+      leName.onclick = entry.name ? () => showEntryPopup(entry) : null
 
       document.getElementById('le-class').textContent = entry.className || entry.class || '—'
       document.getElementById('le-roll').textContent = entry.roll || '—'
@@ -391,7 +502,7 @@
         title: 'Entry Details',
         html: `
           <div class="text-start mt-3" style="font-size: 1.1rem; line-height: 1.6;">
-            <p><strong>Student:</strong> <span class="text-primary">${entry.name}</span></p>
+            ${entry.name ? `<p><strong>Student:</strong> <span class="text-primary">${entry.name}</span></p>` : ''}
             <p><strong>Class:</strong> ${entry.className || entry.class}</p>
             <p><strong>Roll No:</strong> ${entry.roll}</p>
             <p><strong>Exam:</strong> ${entry.exam}</p>
@@ -417,7 +528,7 @@
     let isSwiping = false;
     let panelWidth = 0;
 
-    const DELETE_THRESHOLD_PCT = 0.7; // 70% of panel width for full swipe delete
+    const DELETE_THRESHOLD_PCT = 0.3; // 30% of panel width to trigger swipe action
 
     function startSwipe(e) {
       startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
@@ -433,19 +544,18 @@
       const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
       currentX = x - startX;
 
-      // Only allow swiping left
-      if (currentX > 0) currentX = 0;
+      // Only allow swiping right (left to right)
+      if (currentX < 0) currentX = 0;
 
       // Visual feedback: If swiping past delete threshold, change color
-      const absoluteX = Math.abs(currentX);
-      swipeDeleteBtn.style.width = absoluteX + 'px';
+      swipeDeleteBtn.style.width = currentX + 'px';
 
-      if (absoluteX > panelWidth * DELETE_THRESHOLD_PCT) {
+      if (currentX > panelWidth * DELETE_THRESHOLD_PCT) {
         swipeDeleteBtn.classList.add('swipe-delete-active');
-        swipeText.textContent = 'Release to Delete';
+        swipeText.innerHTML = 'Upgrade to<br>Next Exam Type';
       } else {
         swipeDeleteBtn.classList.remove('swipe-delete-active');
-        swipeText.textContent = '';
+        swipeText.innerHTML = '';
       }
 
       swipePanel.style.transform = `translateX(${currentX}px)`;
@@ -458,10 +568,8 @@
       swipePanel.style.transition = 'transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28)';
       swipeDeleteBtn.style.transition = 'all 0.3s ease';
 
-      const absoluteX = Math.abs(currentX);
-
-      if (absoluteX > panelWidth * DELETE_THRESHOLD_PCT) {
-        // FULL SWIPE: Trigger delete directly
+      if (currentX > panelWidth * DELETE_THRESHOLD_PCT) {
+        // FULL SWIPE RIGHT: Trigger upgrade action
         triggerDelete();
       } else {
         // RESET: Always snap back if not a full swipe
@@ -512,6 +620,8 @@
             Toast.fire({
               icon: 'success',
               title: 'Session finished. All fields unlocked.'
+            }).then(() => {
+              location.reload();
             });
             return;
           }
@@ -561,6 +671,8 @@
           Toast.fire({
             icon: 'info',
             title: `Batch reset. Now entering: ${nextExam}`
+          }).then(() => {
+            location.reload();
           });
         } else {
           resetSwipe();
@@ -797,6 +909,38 @@
     examTypeSelect.addEventListener('change', updateMaxMarks);
     updateMaxMarks();
 
+    // ── Student Name Visibility Logic ─────────────────────────────────────
+    function updateStudentNameVisibility() {
+      const selectedClass = classSelect.value;
+      const selectedExam = examTypeSelect.value;
+      const nameWrapper = document.getElementById('studentNameWrapper');
+      const nameInput = document.getElementById('studentName');
+
+      let showName = false;
+
+      if (selectedClass === 'Nursery') {
+        // For Nursery: show Student Name only on Half yearly
+        showName = (selectedExam === 'Half yearly');
+      } else {
+        // For all other classes: show Student Name only on Unit-1
+        showName = (selectedExam === 'Unit-1');
+      }
+
+      if (showName) {
+        nameWrapper.style.display = 'block';
+        nameInput.setAttribute('required', 'required');
+      } else {
+        nameWrapper.style.display = 'none';
+        nameInput.removeAttribute('required');
+        nameInput.value = ''; // Clear value when hidden
+      }
+    }
+
+    classSelect.addEventListener('change', updateStudentNameVisibility);
+    examTypeSelect.addEventListener('change', updateStudentNameVisibility);
+    updateStudentNameVisibility();
+    // ──────────────────────────────────────────────────────────────────────
+
 
     const Toast = Swal.mixin({
       toast: true,
@@ -940,18 +1084,17 @@
 
       records.forEach(r => {
         const tr = document.createElement('tr');
-        tr.style.borderBottom = '1px solid #f0f0f0';
         tr.innerHTML = `
-          <td class="fw-bold text-dark py-3">${r.rollNumber || '—'}</td>
-          <td class="text-muted py-3">${r.subject1Marks || '—'}</td>
-          <td class="text-muted py-3">${r.subject2Marks || '—'}</td>
-          <td class="text-muted py-3">${r.subject3Marks || '—'}</td>
-          <td class="text-muted py-3">${r.subject4Marks || '—'}</td>
-          <td class="text-muted py-3">${r.subject5Marks || '—'}</td>
-          <td class="text-muted py-3">${r.subject6Marks || '—'}</td>
-          <td style="white-space: nowrap;" class="py-3">
-            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-none me-1" style="font-size: 0.8rem; font-weight: 500;" onclick="editRecord(${r.id})" ${isSyncing ? 'disabled' : ''}>Edit</button>
-            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-none" style="font-size: 0.8rem; font-weight: 500;" onclick="deleteAndRender(${r.id})" ${isSyncing ? 'disabled' : ''}>Del</button>
+          <td class="fw-bold text-dark">${r.rollNumber || '—'}</td>
+          <td class="text-muted">${r.subject1Marks || '—'}</td>
+          <td class="text-muted">${r.subject2Marks || '—'}</td>
+          <td class="text-muted">${r.subject3Marks || '—'}</td>
+          <td class="text-muted">${r.subject4Marks || '—'}</td>
+          <td class="text-muted">${r.subject5Marks || '—'}</td>
+          <td class="text-muted">${r.subject6Marks || '—'}</td>
+          <td>
+            <button class="btn btn-outline-primary btn-action me-1" onclick="editRecord(${r.id})" ${isSyncing ? 'disabled' : ''}>Edit</button>
+            <button class="btn btn-outline-danger btn-action" onclick="deleteAndRender(${r.id})" ${isSyncing ? 'disabled' : ''}>Del</button>
           </td>
         `;
         queueTableBody.appendChild(tr);
@@ -1037,6 +1180,10 @@
             const payloadRecord = { ...record };
             delete payloadRecord.id;
 
+            if (!payloadRecord.studentName || payloadRecord.studentName.trim() === '') {
+              payloadRecord.studentName = ' ';
+            }
+
             const payload = new URLSearchParams(payloadRecord).toString();
             const response = await fetch(scriptURL, {
               method: 'POST',
@@ -1099,9 +1246,9 @@
         showLastEntryPanel(currentEntry);
 
         const leName = document.getElementById('le-name');
-        leName.innerHTML = `${currentEntry.name}`;
-        leName.style.cursor = 'pointer';
-        leName.onclick = () => showEntryPopup(currentEntry);
+        leName.innerHTML = currentEntry.name || '—';
+        leName.style.cursor = currentEntry.name ? 'pointer' : 'default';
+        leName.onclick = currentEntry.name ? () => showEntryPopup(currentEntry) : null;
 
         const savedClass = classSelect.value;
         const savedExamType = examTypeSelect.value;
@@ -1118,6 +1265,7 @@
 
         lockInputs();
         updateSubjects();
+        updateStudentNameVisibility(); // Restore correct name field visibility after reset
 
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
