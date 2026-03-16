@@ -225,6 +225,94 @@
         width: 21%;
       }
     }
+
+    /* Form Layout Styles */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .form-row>div {
+      flex: 1;
+    }
+
+    .form-row label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 4px;
+    }
+
+    .form-row .form-control,
+    .form-row .form-select {
+      font-size: 0.9rem;
+      padding: 8px 10px;
+    }
+
+    /* Success Checkmark Animation */
+    .success-icon-container {
+      display: flex;
+      justify-content: center;
+      padding: 20px 0 10px 0;
+    }
+
+    .checkmark-svg {
+      width: 80px;
+      height: 80px;
+      display: block;
+    }
+
+    .checkmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 4;
+      stroke-miterlimit: 10;
+      stroke: #4ade80;
+      fill: none;
+      animation: stroke-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark-check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke: #4ade80;
+      fill: none;
+      animation: stroke-check 0.4s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+
+    @keyframes stroke-circle {
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes stroke-check {
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .success-text-main {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #1a202c;
+      margin-top: 10px;
+      margin-bottom: 8px;
+      letter-spacing: -0.025em;
+      text-align: center;
+    }
+
+    .success-text-sub {
+      font-size: 1.05rem;
+      color: #4a5568;
+      line-height: 1.5;
+      margin-bottom: 10px;
+      text-align: center;
+    }
   </style>
 </head>
 
@@ -236,47 +324,48 @@
 
     <form name="submit-to-google-sheet">
 
-      <div class="mb-3">
-        <label for="studentClass" class="form-label">Class</label>
-        <select class="form-select" id="studentClass" name="studentClass" required>
-          <option value="">Select Class</option>
-          <option value="Nursery">
-            Nursery
-          </option>
-          <option value="1">Class 1</option>
-          <option value="2">Class 2</option>
-          <option value="3">Class 3</option>
-          <option value="4">Class 4</option>
-          <option value="5">Class 5</option>
-          <option value="6">Class 6</option>
-          <option value="7">Class 7</option>
-          <option value="8">Class 8</option>
-          <option value="9">Class 9</option>
-          <option value="10">Class 10</option>
-        </select>
-      </div>
+      <div class="form-row">
+        <div>
+          <label for="studentClass" class="form-label">Class</label>
+          <select class="form-select" id="studentClass" name="studentClass" required>
+            <option value="">Select Class</option>
+            <option value="Nursery">
+              Nursery
+            </option>
+            <option value="1">Class 1</option>
+            <option value="2">Class 2</option>
+            <option value="3">Class 3</option>
+            <option value="4">Class 4</option>
+            <option value="5">Class 5</option>
+            <option value="6">Class 6</option>
+            <option value="7">Class 7</option>
+            <option value="8">Class 8</option>
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+          </select>
+        </div>
 
-      <div class="mb-3">
-        <label for="examType" class="form-label">Exam Type</label>
-        <select class="form-control" id="examType" name="examType" required>
-          <option value="">
-            Select Exam Type
-          </option>
-          <option value="Unit-1">Unit-1</option>
-          <option value="Unit-2">Unit-2</option>
-          <option value="Half yearly">
-            Half yearly
-          </option>
-          <option value="Unit-3">Unit-3</option>
-          <option value="Unit-4">Unit-4</option>
-          <option value="Annual">Annual</option>
-        </select>
-      </div>
+        <div>
+          <label for="examType" class="form-label">Exam Type</label>
+          <select class="form-control" id="examType" name="examType" required>
+            <option value="">
+              Select Exam Type
+            </option>
+            <option value="Unit-1">Unit-1</option>
+            <option value="Unit-2">Unit-2</option>
+            <option value="Half yearly">
+              Half yearly
+            </option>
+            <option value="Unit-3">Unit-3</option>
+            <option value="Unit-4">Unit-4</option>
+            <option value="Annual">Annual</option>
+          </select>
+        </div>
 
-      <div class="mb-3">
-        <label for="rollNumber" class="form-label">Roll Number</label>
-        <input type="number" class="form-control" id="rollNumber" name="rollNumber" placeholder="Enter roll number"
-          required />
+        <div>
+          <label for="rollNumber" class="form-label">Roll No</label>
+          <input type="number" class="form-control" id="rollNumber" name="rollNumber" placeholder="Roll" required />
+        </div>
       </div>
 
       <div class="mb-3" id="studentNameWrapper">
@@ -284,6 +373,13 @@
         <input type="text" class="form-control" id="studentName" name="studentName" placeholder="Enter student name"
           pattern="^[A-Za-z\s]+$" title="Name should only contain letters and spaces"
           oninput="this.value = this.value.replace(/[^A-Za-z\s]/g, '')" />
+      </div>
+
+      <!-- Class Selection Prompt -->
+      <div id="classSelectionPrompt" class="text-center py-5 my-3"
+        style="background: #fff5f5; border: 2px dashed #feb2b2; border-radius: 12px; display: none;">
+        <h3 style="color: #c53030; font-weight: 700; margin-bottom: 5px;">⚠️ Please Select Class</h3>
+        <p class="text-muted mb-0">Select a class from above to begin entering marks</p>
       </div>
 
 
@@ -814,6 +910,22 @@
     function updateSubjects() {
       const selectedClass = classSelect.value
       updateExamOptions(); // Also update exam options when class changes
+
+      const prompt = document.getElementById('classSelectionPrompt');
+      const saveBtn = document.getElementById('saveBtn');
+
+      if (!selectedClass) {
+        // No class selected: show prompt, hide subjects and save button
+        if (prompt) prompt.style.display = 'block';
+        if (saveBtn) saveBtn.style.display = 'none';
+        document.querySelectorAll('.subject-item').forEach(s => s.classList.add('hidden-subject'));
+        return;
+      }
+
+      // Class is selected: hide prompt, show save button
+      if (prompt) prompt.style.display = 'none';
+      if (saveBtn) saveBtn.style.display = 'block';
+
       let subjectsToShow = 4
 
       if (
@@ -908,6 +1020,37 @@
     classSelect.addEventListener('change', updateMaxMarks);
     examTypeSelect.addEventListener('change', updateMaxMarks);
     updateMaxMarks();
+
+    // ── Auto-Tab Logic ──────────────────────────────────────────
+    document.addEventListener('input', (e) => {
+      if (e.target.classList.contains('subject-marks')) {
+        const input = e.target;
+        const value = input.value;
+        const max = parseInt(input.getAttribute('max')) || 100;
+
+        // Condition to move: 
+        // 1. Value has 2 digits and max is < 100 (e.g. 25, 50)
+        // 2. Value is 100 (3 digits)
+        // 3. Value has 2 digits and is >= 10 (and we aren't allowing more)
+
+        // Jump strictly after 2 digits
+        if (value.length >= 2) {
+          // Find next visible subject input
+          const subjectItems = Array.from(document.querySelectorAll('.subject-item:not(.hidden-subject)'));
+          const currentItem = input.closest('.subject-item');
+          const currentIndex = subjectItems.indexOf(currentItem);
+
+          if (currentIndex !== -1 && currentIndex < subjectItems.length - 1) {
+            const nextInput = subjectItems[currentIndex + 1].querySelector('.subject-marks');
+            if (nextInput) nextInput.focus();
+          } else if (currentIndex === subjectItems.length - 1) {
+            // If it's the last subject, move to save button
+            document.getElementById('saveBtn').focus();
+          }
+        }
+      }
+    });
+    // ────────────────────────────────────────────────────────────
 
     // ── Student Name Visibility Logic ─────────────────────────────────────
     function updateStudentNameVisibility() {
@@ -1093,8 +1236,7 @@
           <td class="text-muted">${r.subject5Marks || '—'}</td>
           <td class="text-muted">${r.subject6Marks || '—'}</td>
           <td>
-            <button class="btn btn-outline-primary btn-action me-1" onclick="editRecord(${r.id})" ${isSyncing ? 'disabled' : ''}>Edit</button>
-            <button class="btn btn-outline-danger btn-action" onclick="deleteAndRender(${r.id})" ${isSyncing ? 'disabled' : ''}>Del</button>
+            <button class="btn btn-outline-primary btn-action w-100" onclick="editRecord(${r.id})" ${isSyncing ? 'disabled' : ''}>Edit</button>
           </td>
         `;
         queueTableBody.appendChild(tr);
@@ -1212,7 +1354,25 @@
         if (failedCount > 0) {
           Swal.fire('Sync Paused', `Synced ${successCount} entries before a network error occurred. Please check your connection and try again.`, 'warning');
         } else {
-          Swal.fire('Success', `All ${successCount} entries synced successfully!`, 'success');
+          Swal.fire({
+            html: `
+              <div class="success-icon-container">
+                <svg class="checkmark-svg" viewBox="0 0 52 52">
+                  <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                  <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+              </div>
+              <div class="success-text-main">Success</div>
+              <div class="success-text-sub">All ${successCount} entries synced successfully!</div>
+            `,
+            showConfirmButton: true,
+            confirmButtonText: 'Great!',
+            buttonsStyling: false,
+            customClass: {
+              confirmButton: 'swal2-confirm',
+              popup: 'swal2-popup'
+            }
+          });
         }
       });
     }
